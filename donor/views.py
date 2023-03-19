@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import DonorModel, DonateRequestModel
+from Blood.models import BloodModel
 from .serializers import DonorSerializer, DonateRequest_Serializer, DonateRequest_Serializer_4Admin
 # Create your views here.
 

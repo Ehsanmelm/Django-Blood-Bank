@@ -1,5 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
+from django.http import HttpResponse
+from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -56,23 +58,38 @@ class BloodRequestView(ModelViewSet):
         # class Blood_requests_view(ModelViewSet):
         #     queryset = BloodRequestModel.objects.all()
         #     serializer_class = BloodRequest_Serializer
-    def put(self, request, pk):
+    # @action(detail=True, permission_classes=[IsAdminUser])
+    def update(self, request, pk):
+
+        is_admin = self.request.user.is_staff
         blood_request = BloodRequestModel.objects.get(id=pk)
         data = request.data
         requested_bloodtype = BloodModel.objects.get(
-            bloodtype=data['bloodtype'])
-        status = data['status']
+            blood=data['bloodtype'])
+        if is_admin:
+            status = data['status']
+        else:
+            status = 'Pending'
+        if blood_request.status.lower() != 'accept':
+            blood_request.reason = data['reason']
+            blood_request.unit = data['unit']
+            blood_request.bloodtype = data['bloodtype']
+            print(status)
+            if status.lower() == 'accept':
+                if requested_bloodtype.unit - int(data['unit']) >= 0:
+                    requested_bloodtype.unit = requested_bloodtype.unit - \
+                        int(data['unit'])
+                    blood_request.status = status
+                    requested_bloodtype.save()
+                else:
+                    blood_request.status = 'Denied'
+                    raise APIException("There is not  enough blood!")
 
-        blood_request.reason = data['reason']
-        blood_request.unit = data['unit']
-        blood_request.bloodtype = data['bloodtype']
+            blood_request.save()
+        if is_admin:
+            serializer = BloodRequest_For_admin_Serializer(blood_request)
+        else:
+            serializer = BloodRequest_Serializer(blood_request)
+        return Response(serializer.data)
 
-        if status.lower() == 'accept':
-            if requested_bloodtype.unit - data['unit'] >= 0:
-                blood_request.unit = requested_bloodtype.unit - data['unit']
-                requested_bloodtype.save()
-            else:
-                blood_request.status = 'Denied'
-
-        blood_request.save()
         # blood_request.bloodtype = data['bloodtype']
