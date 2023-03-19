@@ -40,3 +40,31 @@ class DonateRequestView(ModelViewSet):
 
     def get_serializer_context(self):
         return {'donor_id': self.request.user.id}
+
+    def update(self, request, pk, *args, **kwargs):
+        is_admin = self.request.user.is_staff
+        donate_request = DonateRequestModel.objects.get(id=pk)
+        donating_blood_type = BloodModel.objects.get(blood=data['bloodtype'])
+        data = request.data
+
+        if is_admin:
+            status = data['status']
+        else:
+            status = 'Pending'
+
+        if donate_request.status.lower() != 'accept':
+            donate_request.disease = data['disease']
+            donate_request.unit = data['unit']
+            donate_request.bloodtype = data['bloodtype']
+            if data['status'].lower() == 'accept':
+                donating_blood_type.unit += data['unit']
+                donating_blood_type.save()
+            else:
+                donate_request.status = 'Denied'
+        donate_request.save()
+
+        if is_admin:
+            serializer = DonateRequest_Serializer_4Admin(donate_request)
+        else:
+            serializer = DonateRequest_Serializer(donate_request)
+        return Response(serializer.date)
