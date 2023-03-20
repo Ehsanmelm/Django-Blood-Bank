@@ -44,8 +44,8 @@ class DonateRequestView(ModelViewSet):
     def update(self, request, pk, *args, **kwargs):
         is_admin = self.request.user.is_staff
         donate_request = DonateRequestModel.objects.get(id=pk)
-        donating_blood_type = BloodModel.objects.get(blood=data['bloodtype'])
         data = request.data
+        donating_blood_type = BloodModel.objects.get(blood=data['bloodtype'])
 
         if is_admin:
             status = data['status']
@@ -56,8 +56,10 @@ class DonateRequestView(ModelViewSet):
             donate_request.disease = data['disease']
             donate_request.unit = data['unit']
             donate_request.bloodtype = data['bloodtype']
-            if data['status'].lower() == 'accept':
-                donating_blood_type.unit += data['unit']
+            print(f'<<<<<<< {status} >>>>>>')
+            if status.lower() == 'accept':
+                donating_blood_type.unit += int(data['unit'])
+                donate_request.status = 'Accept'
                 donating_blood_type.save()
             else:
                 donate_request.status = 'Denied'
@@ -67,4 +69,4 @@ class DonateRequestView(ModelViewSet):
             serializer = DonateRequest_Serializer_4Admin(donate_request)
         else:
             serializer = DonateRequest_Serializer(donate_request)
-        return Response(serializer.date)
+        return Response(serializer.data)
