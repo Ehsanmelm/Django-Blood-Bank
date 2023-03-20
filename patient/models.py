@@ -29,9 +29,6 @@ class patientModel(models.Model):
     address = models.TextField()
     mobile = models.CharField(max_length=20, null=False)
 
-    # is_donor = models.BooleanField(default=False)
-    # is_patient = models.BooleanField(default=False)
-
     @admin.display(ordering='patient__first_name')
     def first_name(self):
         return self.patient.first_name

@@ -10,6 +10,7 @@ from .models import BloodModel, BloodRequestModel
 from patient.models import patientModel
 from .serializers import BloodManaging_Serializer, BloodRequest_Serializer, BloodRequest_For_admin_Serializer
 from patient.serializers import PatientSerializer
+
 # Create your views here.
 
 
@@ -21,8 +22,6 @@ class BloodManaging_View(ModelViewSet):
 
 class BloodRequestView(ModelViewSet):
     permission_classes = [IsAuthenticated]
-    # serializer_class = BloodRequest_Serializer
-    # queryset = BloodRequestModel.objects.all()
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -30,7 +29,7 @@ class BloodRequestView(ModelViewSet):
         else:
             authenticated_user_id = self.request.user.id
             queryset = BloodRequestModel.objects.filter(
-                Q(requested_patient_id=authenticated_user_id) | Q(requested_donor_id=authenticated_user_id))
+                Q(requested_patient_id=authenticated_user_id))
         return queryset
 
     def get_serializer_class(self, *args, **kwargs):
@@ -42,23 +41,12 @@ class BloodRequestView(ModelViewSet):
         try:
             patient = patientModel.objects.get(
                 patient_id=self.request.user.id)
-            # donor, donor_created = patientModel.objects.get_or_create(
-            #     donor_id=self.request.user.id)
+
             if patient:
-                return {'requested_patient_id': self.request.user.id, 'requested_donor_id': None}
+                return {'requested_patient_id': self.request.user.id, }
         except:
             return
-        # if donor:
-            # return
-        # if get_object_or_404()
 
-    # @action(detail=False, methods=['GET', 'POST'])
-    # def Request(self, request):
-
-        # class Blood_requests_view(ModelViewSet):
-        #     queryset = BloodRequestModel.objects.all()
-        #     serializer_class = BloodRequest_Serializer
-    # @action(detail=True, permission_classes=[IsAdminUser])
     def update(self, request, pk):
 
         is_admin = self.request.user.is_staff
@@ -84,12 +72,12 @@ class BloodRequestView(ModelViewSet):
                 else:
                     blood_request.status = 'Denied'
                     raise APIException("There is not  enough blood!")
+        elif status.lower() == 'denied':
+            blood_request.status = 'Denied'
 
-            blood_request.save()
+        blood_request.save()
         if is_admin:
             serializer = BloodRequest_For_admin_Serializer(blood_request)
         else:
             serializer = BloodRequest_Serializer(blood_request)
         return Response(serializer.data)
-
-        # blood_request.bloodtype = data['bloodtype']

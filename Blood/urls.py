@@ -8,10 +8,5 @@ main_router.register('Blood-Request', views.BloodRequestView,
                      basename='blood_request')
 main_router.register(
     'Manage-Blood', views.BloodManaging_View, basename='manage_blood')
-# main_router.register('patients_request', views.patient_Blood_requests_view)
 
 urlpatterns = main_router.urls
-
-# urlpatterns += [
-#     path('patients_request', views.patient_Blood_requests_view.as_view())
-# ]

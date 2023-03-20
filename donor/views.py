@@ -29,7 +29,6 @@ class DonateRequestView(ModelViewSet):
         if self.request.user.is_staff:
             return DonateRequestModel.objects.all()
         else:
-            # print(DonateRequestModel.objects.all().donor__donor__username)
             return DonateRequestModel.objects.filter(requested_donor_id=self.request.user.id)
 
     def get_serializer_class(self):
@@ -63,6 +62,8 @@ class DonateRequestView(ModelViewSet):
                 donating_blood_type.save()
             else:
                 donate_request.status = 'Denied'
+        elif status.lower() == 'denied':
+            donate_request.status = 'Denied'
         donate_request.save()
 
         if is_admin:

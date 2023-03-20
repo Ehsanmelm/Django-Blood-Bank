@@ -36,7 +36,7 @@ class BloodRequestModel(models.Model):
         ('Denied', 'Denied'),
     ]
     requested_patient_id = models.PositiveIntegerField(null=True)
-    requested_donor_id = models.PositiveIntegerField(null=True)
+    # requested_donor_id = models.PositiveIntegerField(null=True)
     reason = models.TextField(default=None)
     bloodtype = models.CharField(
         choices=BLOOD_TYPE, max_length=255, default=None)
