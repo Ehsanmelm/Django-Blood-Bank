@@ -1,0 +1,10 @@
+services:
+  backend:
+    build: .
+    ports:
+      - 8000:8000
+    volumes:
+      - db_data:/app
+    command: bash -c "python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+volumes:
+  db_data:
