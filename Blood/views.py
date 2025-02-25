@@ -43,9 +43,9 @@ class BloodRequestView(ModelViewSet):
                 patient_id=self.request.user.id)
 
             if patient:
-                return {'requested_patient_id': self.request.user.id, }
+                return {'requested_patient_id': self.request.user.id}
         except:
-            return
+            return {}
 
     def update(self, request, pk):
 
